@@ -61,8 +61,8 @@ def CohenEffectSize(group1, group2):
 
 
 def GetCohenForCol(df, column_name):
-    firsts_col = df[live.birthord == 1][column_name]
-    others_col = df[live.birthord != 1][column_name]
+    firsts_col = df[df.birthord == 1][column_name]
+    others_col = df[df.birthord != 1][column_name]
     return CohenEffectSize(firsts_col, others_col)
 
 
