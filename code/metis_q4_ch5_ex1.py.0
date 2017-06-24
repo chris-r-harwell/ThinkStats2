@@ -1,0 +1,57 @@
+#!/bin/env python3
+
+
+import brfss
+import scipy.stats
+import sys
+
+
+def FeetAndInchesToCentimeters(feet, inches):
+    """
+    INPUT: feet and inches
+    OUTPUT: centimeters
+    """
+    cm_per_inch = (2.54/1.0)
+    return (feet*12 + inches) * cm_per_inch
+
+
+y1 = low_cm = FeetAndInchesToCentimeters(5, 10)
+# print("low height/cm {:.3f}".format(low_cm))
+
+
+y2 = high_cm = FeetAndInchesToCentimeters(6, 1)
+# print("high height/cm {:.3f}".format(high_cm))
+
+df = brfss.ReadBrfss()
+# brfss.Summarize(df, 'htm3', 'sumary of heights/cm')
+
+column = 'htm3'
+heights = df[df.sex == 1][column]
+
+mean = heights.mean()
+standard_deviation = heights.std()
+# shortest = heights.min()
+# tallest = heights.max()
+# print('mean: {:.3f}'.format(mean))
+# print('standard deviation: {:.3f}'.format(standard_deviation))
+# print('min: {:.3f}'.format(shortest))
+# print('max: {:.3f}'.format(tallest))
+
+cdf_at_y1 = scipy.stats.norm.cdf(y1, loc=mean, scale=standard_deviation)
+cdf_at_y2 = scipy.stats.norm.cdf(y2, loc=mean, scale=standard_deviation)
+# print('heights')
+# print('low CDF({:.3f}) = {:.3f}'.format(y1, cdf_at_y1))
+# print('high CDF({:.3f}) = {:.3f}'.format(y2, cdf_at_y2))
+probability_in_range = cdf_at_y2 - cdf_at_y1
+# print('probability in range = {:.3f}'.format(probability_in_range))
+print('Model from cummulative distribution function of normal distribution predicts {:.1f} percent males with height in range 5\'10" to 6\'1"'.format(100 * probability_in_range))
+
+count = 0
+for i in heights:
+    if y1 <= i <= y2:
+        count += 1
+n = len(heights)
+pct = 100 * count / n
+
+print('Counting shows {} in range out of {} or {} percent.'.format(count, n, pct))
+
